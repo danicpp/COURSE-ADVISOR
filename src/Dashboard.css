@@ -1,12 +1,11 @@
 :root {
-  --primary: #4f46e5; /* Indigo */
+  --primary: #4f46e5;
   --primary-dark: #4338ca;
-  --secondary: #10b981; /* Emerald */
+  --secondary: #10b981;
   --danger: #ef4444;
   --dark: #1f2937;
   --light: #f3f4f6;
   --white: #ffffff;
-  --glass: rgba(255, 255, 255, 0.95);
   --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
@@ -15,8 +14,7 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: #eef2f6;
   color: var(--dark);
-  /* FIX: Prevent the whole browser window from scrolling */
-  overflow: hidden;
+  overflow: hidden; /* Prevent body scroll, handle in main-content */
 }
 
 /* --- LOGIN SCREEN --- */
@@ -26,6 +24,7 @@ body {
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
 }
 
 .login-card {
@@ -36,9 +35,11 @@ body {
   width: 100%;
   max-width: 400px;
   text-align: center;
+  z-index: 10;
 }
 
-.login-card h2 { margin-bottom: 1.5rem; color: var(--dark); }
+.login-card h2 { margin-bottom: 0.5rem; color: var(--dark); }
+.login-card h4 { margin-top: 0; margin-bottom: 2rem; color: #6b7280; font-weight: 400; }
 .login-card input {
   width: 100%;
   padding: 0.75rem;
@@ -53,7 +54,6 @@ body {
 /* --- DASHBOARD LAYOUT --- */
 .app-container {
   display: flex;
-  /* FIX: Force app to be exactly screen height to allow internal scrolling */
   height: 100vh; 
   width: 100vw;
 }
@@ -66,24 +66,48 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  /* FIX: Sidebar stays put but scrolls internally if needed */
   overflow-y: auto;
   flex-shrink: 0;
 }
 
-.sidebar h1 { font-size: 1.25rem; margin-bottom: 3rem; display: flex; align-items: center; gap: 10px; }
-.sidebar .user-profile { background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 0.5rem; margin-bottom: 2rem; }
-.sidebar small { display: block; opacity: 0.7; font-size: 0.8rem; }
-
 .main-content {
   flex: 1;
   padding: 2rem;
-  /* FIX: Only this section scrolls, keeping sidebar fixed */
-  overflow-y: auto;
+  overflow-y: auto; /* Scrollable content */
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
-/* --- FIX: FLOATING NOTIFICATION (TOAST) --- */
+.content-body {
+    flex: 1; /* Pushes footer down */
+}
+
+/* --- BRANDING & FOOTER --- */
+.brand-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 1rem;
+}
+.brand-header img { width: 50px; margin-bottom: 10px; }
+.brand-header h3 { margin: 0; font-size: 1.1rem; }
+.brand-header p { margin: 0; font-size: 0.8rem; opacity: 0.7; }
+
+.app-footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.85rem;
+}
+.developer-credits {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+/* --- TOAST --- */
 .toast-notification {
   position: fixed;
   top: 20px;
@@ -108,84 +132,24 @@ body {
   to { top: 20px; opacity: 1; }
 }
 
-/* --- BUTTONS --- */
-button {
-  cursor: pointer;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  border: none;
-  font-weight: 600;
-  transition: all 0.2s;
-}
+/* --- COMPONENTS --- */
+button { cursor: pointer; padding: 0.75rem 1.5rem; border-radius: 0.5rem; border: none; font-weight: 600; transition: all 0.2s; }
 .btn-primary { background: var(--primary); color: white; width: 100%; }
 .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
 .btn-success { background: var(--secondary); color: white; }
-.btn-danger { background: var(--danger); color: white; }
 .btn-logout { background: rgba(255,255,255,0.1); color: white; width: 100%; margin-top: auto; }
 .btn-logout:hover { background: rgba(255,255,255,0.2); }
 
-/* --- CARDS & GRIDS --- */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  background: var(--white);
-  padding: 1.5rem;
-  border-radius: 1rem;
-  box-shadow: var(--shadow);
-  border-left: 5px solid var(--primary);
-}
-
-.course-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.course-card {
-  background: var(--white);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
-  transition: transform 0.2s;
-  position: relative;
-  overflow: hidden;
-}
+.course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+.course-card { background: var(--white); border-radius: 1rem; padding: 1.5rem; box-shadow: var(--shadow); transition: transform 0.2s; }
 .course-card:hover { transform: translateY(-5px); }
-
 .course-card.passed { border-left: 5px solid var(--secondary); opacity: 0.8; }
 .course-card.locked { border-left: 5px solid #9ca3af; background: #f9fafb; }
 .course-card.available { border-left: 5px solid var(--primary); }
-
 .course-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; }
 .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
 .badge-credits { background: #e0e7ff; color: var(--primary); }
 
-/* --- ADMIN FORM --- */
-.admin-panel {
-  background: var(--white);
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: var(--shadow);
-  max-width: 600px;
-  margin: 0 auto;
-}
+.admin-panel { background: var(--white); padding: 2rem; border-radius: 1rem; box-shadow: var(--shadow); max-width: 600px; margin: 0 auto; }
 .form-group { margin-bottom: 1rem; }
-.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-
-/* --- SCHEDULE LIST --- */
-.schedule-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--white);
-  padding: 1rem;
-  margin-bottom: 0.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
+.schedule-item { display: flex; justify-content: space-between; align-items: center; background: var(--white); padding: 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
