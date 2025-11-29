@@ -1,13 +1,26 @@
 import sqlite3
 import random
+import os
 
 def init_system():
+    # --- BRANDING HEADER ---
+    print("\n" + "="*60)
+    print("   🎓 UNIVERSITY OF SARGODHA - COURSE PATH ADVISOR")
+    print("      Developed by Group 15 (Daniyal, Faisal, Maheen)")
+    print("="*60 + "\n")
+
     print("... 🚀 INITIALIZING FULL SYSTEM (With Complete Timetables) ...")
-    conn = sqlite3.connect("university.db")
+    
+    # Ensure consistent data generation
+    random.seed(42)
+    
+    db_path = os.path.join(os.path.dirname(__file__), '..', 'university.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     # 1. CLEANUP & SCHEMA
     cursor.executescript("""
+    DROP TABLE IF EXISTS PassedCourses;
     DROP TABLE IF EXISTS Registrations;
     DROP TABLE IF EXISTS StudentProfiles;
     DROP TABLE IF EXISTS Users;
@@ -37,6 +50,14 @@ def init_system():
         credits INTEGER,
         difficulty_level INTEGER,
         min_semester INTEGER
+    );
+
+    CREATE TABLE PassedCourses (
+        roll_number TEXT,
+        course_id VARCHAR(20),
+        PRIMARY KEY (roll_number, course_id),
+        FOREIGN KEY (roll_number) REFERENCES StudentProfiles(roll_number),
+        FOREIGN KEY (course_id) REFERENCES Courses(course_id)
     );
 
     CREATE TABLE Prerequisites (
@@ -112,66 +133,48 @@ def init_system():
     ]
     cursor.executemany("INSERT INTO Prerequisites VALUES (?,?)", prereqs)
 
-    # 4. INSERT COMPREHENSIVE SCHEDULE (The Fix)
-    # Every course now has a distinct slot.
-    # Mon/Wed = Odd Semesters | Tue/Thu = Even Semesters | Fri = Electives/FYP
-    schedule = [
-        # Semester 1 (Mon/Wed)
-        ('CMPC-5201', 'Mon', 800, 930), ('URCA-5123', 'Mon', 1000, 1130), 
-        ('URCQ-5101', 'Mon', 1200, 1330), ('URCQ-5102', 'Wed', 800, 930),
-        ('URCE-5118', 'Wed', 1000, 1130), ('BUSB-6101', 'Wed', 1200, 1330),
+    # 4. INSERT SCHEDULE (Multi-Slot Logic)
+    print("... 🗓️  Generating Multi-Day Time Slots ...")
+    schedule_data = []
+    
+    # Base hours for each semester batch
+    base_hours = {1: 800, 3: 800, 5: 800, 7: 800, 
+                  2: 1200, 4: 1200, 6: 1200, 8: 1200}
+    
+    current_hour_offset = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0}
 
-        # Semester 2 (Tue/Thu)
-        ('CMPC-5202', 'Tue', 800, 930), ('CMPC-5203', 'Tue', 1000, 1130),
-        ('CMPC-5204', 'Tue', 1200, 1330), ('MATH-5101', 'Thu', 800, 930),
-        ('MATH-5102', 'Thu', 1000, 1130), ('URCQ-5111-I', 'Thu', 1200, 1300),
+    for course in all_courses:
+        cid, name, credits, diff, min_sem = course
+        
+        sem_key = min_sem if min_sem else 7
+        if sem_key > 8: sem_key = 8
 
-        # Semester 3 (Mon/Wed - Shifted Afternoon)
-        ('CMPC-5205', 'Mon', 1400, 1530), ('CMPC-5209', 'Mon', 1530, 1700),
-        ('CMPC-5207', 'Wed', 1400, 1530), ('CMPC-5208', 'Wed', 1530, 1700),
-        ('CMPC-5101', 'Fri', 900, 1030), ('MATH-5103', 'Fri', 1100, 1230),
+        start = base_hours[sem_key] + (current_hour_offset[sem_key] * 100)
+        if start >= 1600: start = base_hours[sem_key] # Reset if too late
+        
+        # Logic: Split credits into 1-hour blocks
+        days = []
+        if credits == 4: days = ['Mon', 'Tue', 'Wed', 'Thu']
+        elif credits == 3: days = ['Mon', 'Wed', 'Fri']
+        elif credits == 2: days = ['Tue', 'Thu']
+        else: days = ['Fri']
 
-        # Semester 4 (Tue/Thu - Shifted Afternoon)
-        ('CMPC-5206', 'Tue', 1400, 1530), ('CSDC-5101', 'Tue', 1530, 1700),
-        ('CSDC-5102', 'Thu', 1400, 1530), ('URCI-5105', 'Thu', 1530, 1630),
-        ('URCW-5201', 'Fri', 1400, 1530), ('URCQ-5111-II', 'Fri', 1600, 1700),
+        for day in days:
+            schedule_data.append((cid, day, start, start + 100))
+        
+        current_hour_offset[sem_key] += 1
 
-        # Semester 5 (Mon/Wed Early)
-        ('CMPC-6201', 'Mon', 830, 1000), ('CSDC-6201', 'Mon', 1030, 1200),
-        ('CSDC-6202', 'Wed', 830, 1000), ('URCA-5101', 'Wed', 1030, 1200),
-
-        # Semester 6 (Tue/Thu Early)
-        ('CSDC-6203', 'Tue', 830, 1000), ('ITDC-6204', 'Thu', 830, 1000),
-        ('URCQ-5111-III', 'Tue', 1030, 1130),
-
-        # Semester 7 (FYP & Projects - Fridays)
-        ('CMPC-6702', 'Fri', 900, 1200), ('CMPC-6101', 'Mon', 1600, 1730),
-        ('ENGL-6101', 'Wed', 1600, 1730), ('URCE-5124', 'Thu', 1600, 1730),
-
-        # Semester 8 (FYP 2 - Fridays)
-        ('CMPC-6703', 'Fri', 1300, 1600), ('URCI-5122', 'Tue', 1600, 1730),
-        ('URCS-6101', 'Thu', 1400, 1530), ('URCC-5125', 'Mon', 1400, 1530),
-        ('URCQ-5111-IV', 'Wed', 1400, 1500),
-
-        # Electives (Spread across Fri and Evenings)
-        ('ITDC-5201', 'Fri', 1400, 1530), 
-        ('CSDE-6202', 'Fri', 1600, 1730),
-        ('CSDE-6505', 'Fri', 900, 1030), 
-        ('CSDE-6501', 'Fri', 1100, 1230),
-        ('DSDE-5102', 'Thu', 1600, 1730)
-    ]
-    cursor.executemany("INSERT INTO CourseSchedule (course_id, day_of_week, start_time, end_time) VALUES (?,?,?,?)", schedule)
+    cursor.executemany("INSERT INTO CourseSchedule (course_id, day_of_week, start_time, end_time) VALUES (?,?,?,?)", schedule_data)
 
     # 5. GENERATE STUDENTS
-    print("... Generating Students ...")
+    print("... 👥 Generating Students ...")
     users_data = [('admin', 'admin123', 'admin')]
     students_data = []
     
     first_names = ["Ali", "Ahmed", "Sara", "Zara", "Bilal", "Hina", "Omar"]
     last_names = ["Khan", "Malik", "Raja", "Bhatti", "Sheikh", "Cheema"]
 
-    # Loop for batches
-    for semester in range(1, 9):
+    for semester in range(1, 10):
         batch_year = 25 - ((semester - 1) // 2)
         session_char = 'F' if semester % 2 != 0 else 'S'
         batch_code = f"{session_char}{batch_year}"
@@ -193,9 +196,24 @@ def init_system():
     cursor.executemany("INSERT INTO Users VALUES (?,?,?)", users_data)
     cursor.executemany("INSERT INTO StudentProfiles VALUES (?,?,?,?,?,?)", students_data)
 
+    # 6. POPULATE PASSED COURSES
+    print("... 🎓 Populating Passed Courses based on Semester ...")
+    passed_courses_data = []
+    all_courses_list = cursor.execute("SELECT course_id, min_semester FROM Courses").fetchall()
+    all_students_list = cursor.execute("SELECT roll_number, current_semester FROM StudentProfiles").fetchall()
+    for roll_number, current_semester in all_students_list:
+        for course_id, min_semester in all_courses_list:
+            if min_semester < current_semester:
+                passed_courses_data.append((roll_number, course_id))
+    cursor.executemany("INSERT INTO PassedCourses VALUES (?,?)", passed_courses_data)
+
     conn.commit()
     conn.close()
-    print("✅ FULL TIMETABLE APPLIED. Login: BSCS51F24R010 / 1234")
+    print("\n" + "-"*60)
+    print("✅ SUCCESS! Database Rebuilt.")
+    print(f"   - Test Student Login: {test_roll} / 1234")
+    print(f"   - Admin Login:        admin / admin123")
+    print("-" * 60 + "\n")
 
 if __name__ == "__main__":
     init_system()

@@ -40,8 +40,7 @@ const LoginScreen = ({ onLogin }) => {
         
         <div style={{marginTop: '40px', borderTop: '1px solid #eee', paddingTop: '20px'}}>
             <p style={{fontSize: '0.8rem', color: '#6b7280'}}>
-                Developed by <b>Group 15 (Daniyal, Faisal, Maheen)</b><br/>
-                Powered by Gemini AI
+                Developed by <b>Group 15 (Daniyal, Faisal, Maheen)</b>
             </p>
         </div>
       </div>

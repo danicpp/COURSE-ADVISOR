@@ -1,4 +1,12 @@
 ﻿import React from 'react';
+// src/components/Shared.js
+
+// REPLACE THIS:
+// export const API_URL = "http://localhost:5000";
+
+// WITH THIS (Use YOUR Port 5000 link):
+export const API_URL = "https://3bdtt3z3-5000.inc1.devtunnels.ms"; 
+// (Make sure there is NO trailing slash '/' at the end)
 
 // --- HELPERS ---
 export const getDifficultyColor = (level) => {
@@ -11,6 +19,12 @@ export const getCourseCategory = (id) => {
     if (id.startsWith('CMPC') || id.startsWith('CSDC')) return 'Core Computing';
     if (id.startsWith('CSDE') || id.startsWith('ITDC') || id.startsWith('SEDC') || id.startsWith('DSDC') || id.startsWith('AIDC')) return 'Domain Electives';
     return 'General & Math';
+};
+
+export const formatTime = (time) => {
+    if (!time) return '';
+    const t = time.toString().padStart(4, '0');
+    return `${t.slice(0,2)}:${t.slice(2)}`;
 };
 
 // --- UI COMPONENTS ---

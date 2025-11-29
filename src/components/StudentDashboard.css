@@ -1,0 +1,79 @@
+.btn-generate {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-top: 20px;
+    background: linear-gradient(45deg, #28a745, #218838);
+    border: none;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.btn-generate:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
+}
+
+.roadmap-container {
+    display: grid;
+    gap: 25px;
+}
+
+.semester-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-left: 6px solid #007bff;
+}
+
+.semester-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.semester-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.btn-accept-plan {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-accept-plan:hover {
+    background-color: #218838;
+}
+
+.semester-reason {
+    background: #e9f7ef;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    color: #155724;
+    font-size: 0.95em;
+}
+
+.course-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.course-tag {
+    background: #f3f4f6;
+    padding: 8px 12px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    color: #555;
+}

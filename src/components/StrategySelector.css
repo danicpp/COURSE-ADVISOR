@@ -1,0 +1,61 @@
+.strategy-selector {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.strategy-label {
+    font-size: 0.9rem;
+    color: #ccc;
+    margin-bottom: 10px;
+    display: block;
+    font-weight: bold;
+}
+
+.strategy-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.strategy-option {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background 0.3s, border 0.3s;
+    border: 2px solid transparent;
+}
+
+.strategy-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.strategy-option.selected {
+    background: rgba(0, 123, 255, 0.2);
+    border-color: #007bff;
+}
+
+.strategy-emoji {
+    font-size: 1.5rem;
+    margin-right: 15px;
+}
+
+.strategy-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.strategy-title {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.strategy-description {
+    font-size: 0.8rem;
+    color: #ccc;
+}
