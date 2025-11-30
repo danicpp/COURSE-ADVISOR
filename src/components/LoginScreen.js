@@ -15,7 +15,7 @@ const LoginScreen = ({ onLogin }) => {
         });
         const data = await res.json();
         if (data.success) {
-            onLogin(data.role, data.profile || { full_name: data.username, roll_number: data.username });
+            onLogin(data.role, data);
         } else { setError(data.message); }
     } catch (err) { setError("Is Backend running?"); }
     setLoading(false);

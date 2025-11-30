@@ -49,6 +49,17 @@ def login():
                 
                 passed_rows = conn.execute('SELECT course_id FROM PassedCourses WHERE roll_number = ?', (user['username'],)).fetchall()
                 passed_courses = [r['course_id'] for r in passed_rows]
+            else:
+                profile = {
+                    'roll_number': user['username'],
+                    'full_name': user['username'],
+                    'is_registered': False,
+                    'current_semester': 1,
+                    'gpa': 0,
+                    'cgpa': 0,
+                    'father_name': ''
+                }
+                passed_courses = []
 
         conn.close()
         return jsonify({"success": True, "role": user['role'], "profile": profile, "username": user['username'], "passed_courses": passed_courses})
@@ -300,9 +311,6 @@ def generate_path():
             
         return jsonify(roadmap)
     except Exception as e: print(e); return jsonify([])
-
-@app.route('/api/report/download', methods=['POST'])
-def download_report(): return jsonify({"success": True})
 
 if __name__ == '__main__':
     print("✅ Final Backend Running on Port 5000")
